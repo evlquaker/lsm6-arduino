@@ -17,6 +17,16 @@
 
 LSM6::LSM6(void)
 {
+  _wire = &Wire;
+  _device = device_auto;
+
+  io_timeout = 0;  // 0 = no timeout
+  did_timeout = false;
+}
+
+LSM6::LSM6(TwoWire* wire)
+{
+  _wire = wire;
   _device = device_auto;
 
   io_timeout = 0;  // 0 = no timeout
@@ -77,8 +87,8 @@ bool LSM6::init(deviceType device, sa0State sa0)
   switch (device)
   {
     case device_DS33:
-      address = (sa0 == sa0_high) ? DS33_SA0_HIGH_ADDRESS : DS33_SA0_LOW_ADDRESS;
-      break;
+    address = (sa0 == sa0_high) ? DS33_SA0_HIGH_ADDRESS : DS33_SA0_LOW_ADDRESS;
+    break;
   }
 
   return true;
@@ -87,10 +97,10 @@ bool LSM6::init(deviceType device, sa0State sa0)
 /*
 Enables the LSM6's accelerometer and gyro. Also:
 - Sets sensor full scales (gain) to default power-on values, which are
-  +/- 2 g for accelerometer and 245 dps for gyro
++/- 2 g for accelerometer and 245 dps for gyro
 - Selects 1.66 kHz (high performance) ODR (output data rate) for accelerometer
-  and 1.66 kHz (high performance) ODR for gyro. (These are the ODR settings for
-  which the electrical characteristics are specified in the datasheet.)
+and 1.66 kHz (high performance) ODR for gyro. (These are the ODR settings for
+which the electrical characteristics are specified in the datasheet.)
 - Enables automatic increment of register address during multiple byte access
 Note that this function will also reset other settings controlled by
 the registers it writes to.
@@ -121,22 +131,22 @@ void LSM6::enableDefault(void)
 
 void LSM6::writeReg(uint8_t reg, uint8_t value)
 {
-  Wire.beginTransmission(address);
-  Wire.write(reg);
-  Wire.write(value);
-  last_status = Wire.endTransmission();
+  _wire -> beginTransmission(address);
+  _wire -> write(reg);
+  _wire -> write(value);
+  last_status = _wire -> endTransmission();
 }
 
 uint8_t LSM6::readReg(uint8_t reg)
 {
   uint8_t value;
 
-  Wire.beginTransmission(address);
-  Wire.write(reg);
-  last_status = Wire.endTransmission();
-  Wire.requestFrom(address, (uint8_t)1);
-  value = Wire.read();
-  Wire.endTransmission();
+  _wire -> beginTransmission(address);
+  _wire -> write(reg);
+  last_status = _wire -> endTransmission();
+  _wire -> requestFrom(address, (uint8_t)1);
+  value = _wire -> read();
+  _wire -> endTransmission();
 
   return value;
 }
@@ -144,14 +154,14 @@ uint8_t LSM6::readReg(uint8_t reg)
 // Reads the 3 accelerometer channels and stores them in vector a
 void LSM6::readAcc(void)
 {
-  Wire.beginTransmission(address);
+  _wire -> beginTransmission(address);
   // automatic increment of register address is enabled by default (IF_INC in CTRL3_C)
-  Wire.write(OUTX_L_XL);
-  Wire.endTransmission();
-  Wire.requestFrom(address, (uint8_t)6);
+  _wire -> write(OUTX_L_XL);
+  _wire -> endTransmission();
+  _wire -> requestFrom(address, (uint8_t)6);
 
   uint16_t millis_start = millis();
-  while (Wire.available() < 6) {
+  while (_wire -> available() < 6) {
     if (io_timeout > 0 && ((uint16_t)millis() - millis_start) > io_timeout)
     {
       did_timeout = true;
@@ -159,12 +169,12 @@ void LSM6::readAcc(void)
     }
   }
 
-  uint8_t xla = Wire.read();
-  uint8_t xha = Wire.read();
-  uint8_t yla = Wire.read();
-  uint8_t yha = Wire.read();
-  uint8_t zla = Wire.read();
-  uint8_t zha = Wire.read();
+  uint8_t xla = _wire -> read();
+  uint8_t xha = _wire -> read();
+  uint8_t yla = _wire -> read();
+  uint8_t yha = _wire -> read();
+  uint8_t zla = _wire -> read();
+  uint8_t zha = _wire -> read();
 
   // combine high and low bytes
   a.x = (int16_t)(xha << 8 | xla);
@@ -175,14 +185,14 @@ void LSM6::readAcc(void)
 // Reads the 3 gyro channels and stores them in vector g
 void LSM6::readGyro(void)
 {
-  Wire.beginTransmission(address);
+  _wire -> beginTransmission(address);
   // automatic increment of register address is enabled by default (IF_INC in CTRL3_C)
-  Wire.write(OUTX_L_G);
-  Wire.endTransmission();
-  Wire.requestFrom(address, (uint8_t)6);
+  _wire -> write(OUTX_L_G);
+  _wire -> endTransmission();
+  _wire -> requestFrom(address, (uint8_t)6);
 
   uint16_t millis_start = millis();
-  while (Wire.available() < 6) {
+  while (_wire -> available() < 6) {
     if (io_timeout > 0 && ((uint16_t)millis() - millis_start) > io_timeout)
     {
       did_timeout = true;
@@ -190,12 +200,12 @@ void LSM6::readGyro(void)
     }
   }
 
-  uint8_t xlg = Wire.read();
-  uint8_t xhg = Wire.read();
-  uint8_t ylg = Wire.read();
-  uint8_t yhg = Wire.read();
-  uint8_t zlg = Wire.read();
-  uint8_t zhg = Wire.read();
+  uint8_t xlg = _wire -> read();
+  uint8_t xhg = _wire -> read();
+  uint8_t ylg = _wire -> read();
+  uint8_t yhg = _wire -> read();
+  uint8_t zlg = _wire -> read();
+  uint8_t zhg = _wire -> read();
 
   // combine high and low bytes
   g.x = (int16_t)(xhg << 8 | xlg);
@@ -222,17 +232,17 @@ void LSM6::vector_normalize(vector<float> *a)
 
 int16_t LSM6::testReg(uint8_t address, regAddr reg)
 {
-  Wire.beginTransmission(address);
-  Wire.write((uint8_t)reg);
-  if (Wire.endTransmission() != 0)
+  _wire -> beginTransmission(address);
+  _wire -> write((uint8_t)reg);
+  if (_wire -> endTransmission() != 0)
   {
     return TEST_REG_ERROR;
   }
 
-  Wire.requestFrom(address, (uint8_t)1);
-  if (Wire.available())
+  _wire -> requestFrom(address, (uint8_t)1);
+  if (_wire -> available())
   {
-    return Wire.read();
+    return _wire -> read();
   }
   else
   {
