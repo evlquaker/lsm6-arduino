@@ -23,7 +23,7 @@ LSM6::LSM6(void)
   did_timeout = false;
 }
 
-LSM6::LSM6(TwoWire* wire)
+LSM6::LSM6(TwoWire *wire)
 {
   _wire = wire;
   _device = device_auto;
