@@ -6,127 +6,153 @@
 
 class LSM6
 {
-  public:
-    template <typename T> struct vector
-    {
-      T x, y, z;
-    };
+public:
+  template <typename T> struct vector
+  {
+    T x, y, z;
+  };
 
-    enum deviceType { device_DS33, device_auto };
-    enum sa0State { sa0_low, sa0_high, sa0_auto };
+  enum deviceType { device_DS33, device_auto };
+  enum sa0State { sa0_low, sa0_high, sa0_auto };
 
-    // register addresses
-    enum regAddr
-    {
-      FUNC_CFG_ACCESS   = 0x01,
+  // register addresses
+  enum regAddr
+  {
+    FUNC_CFG_ACCESS   = 0x01,
 
-      FIFO_CTRL1        = 0x06,
-      FIFO_CTRL2        = 0x07,
-      FIFO_CTRL3        = 0x08,
-      FIFO_CTRL4        = 0x09,
-      FIFO_CTRL5        = 0x0A,
-      ORIENT_CFG_G      = 0x0B,
+    FIFO_CTRL1        = 0x06,
+    FIFO_CTRL2        = 0x07,
+    FIFO_CTRL3        = 0x08,
+    FIFO_CTRL4        = 0x09,
+    FIFO_CTRL5        = 0x0A,
+    ORIENT_CFG_G      = 0x0B,
 
-      INT1_CTRL         = 0x0D,
-      INT2_CTRL         = 0x0E,
-      WHO_AM_I          = 0x0F,
-      CTRL1_XL          = 0x10,
-      CTRL2_G           = 0x11,
-      CTRL3_C           = 0x12,
-      CTRL4_C           = 0x13,
-      CTRL5_C           = 0x14,
-      CTRL6_C           = 0x15,
-      CTRL7_G           = 0x16,
-      CTRL8_XL          = 0x17,
-      CTRL9_XL          = 0x18,
-      CTRL10_C          = 0x19,
+    INT1_CTRL         = 0x0D,
+    INT2_CTRL         = 0x0E,
+    WHO_AM_I          = 0x0F,
+    CTRL1_XL          = 0x10,
+    CTRL2_G           = 0x11,
+    CTRL3_C           = 0x12,
+    CTRL4_C           = 0x13,
+    CTRL5_C           = 0x14,
+    CTRL6_C           = 0x15,
+    CTRL7_G           = 0x16,
+    CTRL8_XL          = 0x17,
+    CTRL9_XL          = 0x18,
+    CTRL10_C          = 0x19,
 
-      WAKE_UP_SRC       = 0x1B,
-      TAP_SRC           = 0x1C,
-      D6D_SRC           = 0x1D,
-      STATUS_REG        = 0x1E,
+    WAKE_UP_SRC       = 0x1B,
+    TAP_SRC           = 0x1C,
+    D6D_SRC           = 0x1D,
+    STATUS_REG        = 0x1E,
 
-      OUT_TEMP_L        = 0x20,
-      OUT_TEMP_H        = 0x21,
-      OUTX_L_G          = 0x22,
-      OUTX_H_G          = 0x23,
-      OUTY_L_G          = 0x24,
-      OUTY_H_G          = 0x25,
-      OUTZ_L_G          = 0x26,
-      OUTZ_H_G          = 0x27,
-      OUTX_L_XL         = 0x28,
-      OUTX_H_XL         = 0x29,
-      OUTY_L_XL         = 0x2A,
-      OUTY_H_XL         = 0x2B,
-      OUTZ_L_XL         = 0x2C,
-      OUTZ_H_XL         = 0x2D,
+    OUT_TEMP_L        = 0x20,
+    OUT_TEMP_H        = 0x21,
+    OUTX_L_G          = 0x22,
+    OUTX_H_G          = 0x23,
+    OUTY_L_G          = 0x24,
+    OUTY_H_G          = 0x25,
+    OUTZ_L_G          = 0x26,
+    OUTZ_H_G          = 0x27,
+    OUTX_L_XL         = 0x28,
+    OUTX_H_XL         = 0x29,
+    OUTY_L_XL         = 0x2A,
+    OUTY_H_XL         = 0x2B,
+    OUTZ_L_XL         = 0x2C,
+    OUTZ_H_XL         = 0x2D,
 
-      FIFO_STATUS1      = 0x3A,
-      FIFO_STATUS2      = 0x3B,
-      FIFO_STATUS3      = 0x3C,
-      FIFO_STATUS4      = 0x3D,
-      FIFO_DATA_OUT_L   = 0x3E,
-      FIFO_DATA_OUT_H   = 0x3F,
-      TIMESTAMP0_REG    = 0x40,
-      TIMESTAMP1_REG    = 0x41,
-      TIMESTAMP2_REG    = 0x42,
+    FIFO_STATUS1      = 0x3A,
+    FIFO_STATUS2      = 0x3B,
+    FIFO_STATUS3      = 0x3C,
+    FIFO_STATUS4      = 0x3D,
+    FIFO_DATA_OUT_L   = 0x3E,
+    FIFO_DATA_OUT_H   = 0x3F,
+    TIMESTAMP0_REG    = 0x40,
+    TIMESTAMP1_REG    = 0x41,
+    TIMESTAMP2_REG    = 0x42,
 
-      STEP_TIMESTAMP_L  = 0x49,
-      STEP_TIMESTAMP_H  = 0x4A,
-      STEP_COUNTER_L    = 0x4B,
-      STEP_COUNTER_H    = 0x4C,
+    STEP_TIMESTAMP_L  = 0x49,
+    STEP_TIMESTAMP_H  = 0x4A,
+    STEP_COUNTER_L    = 0x4B,
+    STEP_COUNTER_H    = 0x4C,
 
-      FUNC_SRC          = 0x53,
+    FUNC_SRC          = 0x53,
 
-      TAP_CFG           = 0x58,
-      TAP_THS_6D        = 0x59,
-      INT_DUR2          = 0x5A,
-      WAKE_UP_THS       = 0x5B,
-      WAKE_UP_DUR       = 0x5C,
-      FREE_FALL         = 0x5D,
-      MD1_CFG           = 0x5E,
-      MD2_CFG           = 0x5F,
-    };
+    TAP_CFG           = 0x58,
+    TAP_THS_6D        = 0x59,
+    INT_DUR2          = 0x5A,
+    WAKE_UP_THS       = 0x5B,
+    WAKE_UP_DUR       = 0x5C,
+    FREE_FALL         = 0x5D,
+    MD1_CFG           = 0x5E,
+    MD2_CFG           = 0x5F,
+  };
 
-    vector<int16_t> a; // accelerometer readings
-    vector<int16_t> g; // gyro readings
+  enum accScale
+  {
+    ACC_SCALE_2G  = 0b00000000,
+    ACC_SCALE_4G  = 0b00001000,
+    ACC_SCALE_8G  = 0b00001100,
+    ACC_SCALE_16G = 0b00000100,
+  };
+  accScale _accScale = ACC_SCALE_2G;
 
-    uint8_t last_status; // status of last I2C transmission
+  enum accODR //onboard data rate for accelerometer
+  {
+    ACC_ODR_POWER_DOWN = 0b00000000,
+    ACC_ODR_13HZ       = 0b00010000,
+    ACC_ODR_26HZ       = 0b00100000,
+    ACC_ODR_52HZ       = 0b00110000,
+    ACC_ODR_104HZ      = 0b01000000,
+    ACC_ODR_208HZ      = 0b01010000,
+    ACC_ODR_416HZ      = 0b01100000,
+    ACC_ODR_833HZ      = 0b01110000,
+    ACC_ODR_1_66KHZ    = 0b10000000,
+    ACC_ODR_3_33KHZ    = 0b10010000,
+    ACC_ODR_6_66KHZ    = 0b10100000,
+  };
+  accODR _accODR = ACC_ODR_1_66KHZ;
 
-    LSM6(void);
-    LSM6(TwoWire* wire);
+  vector<int16_t> a; // accelerometer readings
+  vector<int16_t> g; // gyro readings
 
-    bool init(deviceType device = device_auto, sa0State sa0 = sa0_auto);
-    deviceType getDeviceType(void) { return _device; }
+  uint8_t last_status; // status of last I2C transmission
 
-    void enableDefault(void);
+  LSM6(void);
+  LSM6(TwoWire* wire);
 
+  bool init(deviceType device = device_auto, sa0State sa0 = sa0_auto);
+  deviceType getDeviceType(void) { return _device; }
 
-    void writeReg(uint8_t reg, uint8_t value);
-    uint8_t readReg(uint8_t reg);
+  void enableDefault(void);
+  void setAccelerometerODR(LSM6::accODR odr);
+  void setAccelerometerScale(LSM6::accScale scale);
 
-    void readAcc(void);
-    void readGyro(void);
-    void read(void);
+  void writeReg(uint8_t reg, uint8_t value);
+  uint8_t readReg(uint8_t reg);
 
-    void setTimeout(uint16_t timeout);
-    uint16_t getTimeout(void);
-    bool timeoutOccurred(void);
+  void readAcc(void);
+  void readGyro(void);
+  void read(void);
 
-    // vector functions
-    template <typename Ta, typename Tb, typename To> static void vector_cross(const vector<Ta> *a, const vector<Tb> *b, vector<To> *out);
-    template <typename Ta, typename Tb> static float vector_dot(const vector<Ta> *a, const vector<Tb> *b);
-    static void vector_normalize(vector<float> *a);
+  void setTimeout(uint16_t timeout);
+  uint16_t getTimeout(void);
+  bool timeoutOccurred(void);
 
-  private:
-    TwoWire* _wire; //I2C
-    deviceType _device; // chip type
-    uint8_t address;
+  // vector functions
+  template <typename Ta, typename Tb, typename To> static void vector_cross(const vector<Ta> *a, const vector<Tb> *b, vector<To> *out);
+  template <typename Ta, typename Tb> static float vector_dot(const vector<Ta> *a, const vector<Tb> *b);
+  static void vector_normalize(vector<float> *a);
 
-    uint16_t io_timeout;
-    bool did_timeout;
+private:
+  TwoWire* _wire; //I2C
+  deviceType _device; // chip type
+  uint8_t address;
 
-    int16_t testReg(uint8_t address, regAddr reg);
+  uint16_t io_timeout;
+  bool did_timeout;
+
+  int16_t testReg(uint8_t address, regAddr reg);
 };
 
 

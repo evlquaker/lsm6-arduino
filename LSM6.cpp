@@ -128,6 +128,19 @@ void LSM6::enableDefault(void)
   }
 }
 
+
+void LSM6::setAccelerometerODR(LSM6::accODR odr){
+  _accODR = odr;
+  uint8_t regValue = _accODR | _accScale;
+  writeReg(CTRL1_XL, regValue);
+}
+
+void LSM6::setAccelerometerScale(LSM6::accScale scale){
+  _accScale = scale;
+  uint8_t regValue = _accODR | _accScale;
+  writeReg(CTRL1_XL, regValue);
+}
+
 void LSM6::writeReg(uint8_t reg, uint8_t value)
 {
   _wire -> beginTransmission(address);
